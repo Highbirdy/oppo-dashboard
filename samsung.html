@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Samsung 竞争看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a18;color:#e0e0f0;min-height:100vh}
+    header{background:linear-gradient(135deg,#0d0d1a,#0a0a2a,#0d1a3a);padding:22px 40px;border-bottom:1px solid #1428A033;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .back-btn{font-size:12px;color:#7aadff;background:rgba(255,255,255,.05);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none}
+    .back-btn:hover{background:#1428A0;border-color:#1428A0;color:#fff}
+    .logo{font-size:26px;font-weight:900;color:#1428A0;letter-spacing:1px}
+    .ts{font-size:12px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px}
+    .container{max-width:1400px;margin:0 auto;padding:30px 40px}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+    .kpi{background:linear-gradient(135deg,#0d0d22,#12122a);border:1px solid #1428A033;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#1428A0}
+    .kpi .num{font-size:34px;font-weight:800;color:#1428A0;line-height:1}.kpi .lbl{font-size:12px;color:#7aadff;margin-top:5px}.kpi .sub{font-size:10px;color:#3a5a80;margin-top:3px}
+    .section-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#1428A0;box-shadow:0 0 8px #1428A0}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:26px}
+    .card{background:#12122a;border:1px solid #1e3a5f;border-radius:14px;padding:22px}
+    .full{margin-bottom:26px}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+    .product-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;padding:18px;transition:.2s;cursor:default}
+    .product-card:hover{border-color:#1428A0;transform:translateY(-3px);box-shadow:0 6px 24px rgba(20,40,160,.2)}
+    .series-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .product-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+    .launch{font-size:10px;color:#3a5a80;margin-bottom:10px}
+    .chip{font-size:10px;color:#7aadff;background:rgba(20,40,160,.15);border:1px solid rgba(20,40,160,.3);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 2px 2px 0}
+    .feature-list{margin-top:10px;list-style:none}
+    .feature-list li{font-size:11px;color:#a0aabf;padding:3px 0;border-bottom:1px solid #1a1a3a;display:flex;align-items:flex-start;gap:5px}
+    .feature-list li::before{content:'▸';color:#1428A0;flex-shrink:0}
+    .review-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden;margin-bottom:20px}
+    .review-header{padding:12px 18px;background:linear-gradient(135deg,rgba(20,40,160,.2),rgba(0,198,255,.1));display:flex;justify-content:space-between;align-items:center}
+    .review-header h4{font-size:14px;font-weight:700;color:#fff}
+    .score{font-size:20px;font-weight:800;color:#1428A0}
+    .review-body{padding:14px 18px}
+    .review-half-title{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+    .pos-title{background:rgba(0,230,118,.1);color:#00e676}
+    .neg-title{background:rgba(255,82,82,.1);color:#ff5252}
+    .review-item{font-size:11px;color:#a0aabf;padding:4px 0 4px 14px;border-bottom:1px solid #1a1a3a;position:relative;line-height:1.5}
+    .review-item::before{content:'✓';position:absolute;left:0;font-size:10px;color:#00e676}
+    .review-item.neg::before{content:'✗';color:#ff5252}
+    .sentiment-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+    .sent-pos{background:#00e676}.sent-neg{background:#ff5252}
+    .sent-labels{display:flex;justify-content:space-between;font-size:10px;color:#4a6fa5}
+    .platform-badge{font-size:10px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 0 0}
+    .survey-box{background:rgba(20,40,160,.06);border:1px solid rgba(20,40,160,.2);border-radius:8px;padding:12px 14px;margin-bottom:14px}
+    .survey-title{font-size:10px;color:#7aadff;font-weight:700;margin-bottom:8px;letter-spacing:.5px}
+    .pop-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .pop-label{font-size:11px;color:#c0cce0;width:140px;flex-shrink:0}
+    .pop-bar-bg{flex:1;height:8px;background:#1a1a3a;border-radius:4px;overflow:hidden}
+    .pop-bar{height:100%;border-radius:4px}
+    .pop-pct{font-size:11px;color:#7aadff;width:34px;text-align:right}
+    .pop-src{font-size:9px;color:#2e4a6a;width:60px}
+    .comp-table{width:100%;border-collapse:collapse;font-size:12px}
+    .comp-table th{background:#0f1a30;color:#7aadff;padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #1e3a5f}
+    .comp-table td{padding:9px 12px;border-bottom:1px solid #1a1a3a;color:#c0cce0}
+    .comp-table tr:hover td{background:rgba(20,40,160,.05)}
+    .check{color:#00e676}.cross{color:#ff5252}.star{color:#ffd740}
+    .chart-wrap{position:relative;height:250px}
+    .disclaimer{font-size:10px;color:#2e4a6a;background:rgba(255,255,255,.02);border:1px solid #1a2a3a;border-radius:7px;padding:8px 12px;margin-top:10px;line-height:1.6}
+    footer{text-align:center;padding:20px;font-size:11px;color:#2a3a5a;border-top:1px solid #1e3a5f;line-height:2}
+    @media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.container{padding:20px}.two-col,.three-col{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="back-btn" href="index.html">← 返回Hub</a>
+    <div><div class="logo">Samsung</div><div style="font-size:12px;color:#4a6fa5">Galaxy系列外销情报看板 · 2025–2026</div></div>
+  </div>
+  <div class="ts">数据更新：2026-03 | 含真实海外用户评价</div>
+</header>
+<div class="container">
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="num">19.2%</div><div class="lbl">全球市占率</div><div class="sub">IDC Q3 2025 · 全球第2</div></div>
+    <div class="kpi"><div class="num">7年</div><div class="lbl">OS + 安全更新</div><div class="sub">业界最长软件支持周期</div></div>
+    <div class="kpi"><div class="num">28%</div><div class="lbl">全球折叠屏市占 Q2↘</div><div class="sub">Motorola超越后降至9%（Q2 2025）</div></div>
+    <div class="kpi"><div class="num">75%</div><div class="lbl">海外好评率</div><div class="sub">GSMArena/TechRadar综合</div></div>
+  </div>
+
+  <!-- 产品卡片 -->
+  <div class="section-title"><span class="dot"></span>2025 外销主力机型</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(20,40,160,.15);border:1px solid #1428A0;color:#6688ff">Galaxy S 旗舰</span>
+      <h3>Galaxy S25 Ultra</h3><div class="launch">2025 Q1 全球发布</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">S Pen</span><span class="chip">IP68</span>
+      <ul class="feature-list">
+        <li>200MP主摄 + S Pen 手写笔</li><li>Snapdragon 8 Elite 全系统一</li>
+        <li>5000mAh + 45W 快充</li><li>Galaxy AI + Gemini 集成</li>
+        <li>7年OS + 7年安全更新</li><li>钛金属边框</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(20,40,160,.15);border:1px solid #1428A0;color:#6688ff">Galaxy S 旗舰</span>
+      <h3>Galaxy S25</h3><div class="launch">2025 Q1 全球发布</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">Wi-Fi 7</span><span class="chip">BT 5.4</span>
+      <ul class="feature-list">
+        <li>全系列史上最轻薄紧凑旗舰</li><li>出色的120Hz LTPO AMOLED</li>
+        <li>4000mAh + 25W 快充</li><li>One UI 7 + Circle to Search</li>
+        <li>7年更新保障</li><li>多彩配色</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(20,40,160,.15);border:1px solid #1428A0;color:#6688ff">Galaxy S 旗舰</span>
+      <h3>Galaxy S25 Edge</h3><div class="launch">2025 Q2 全球发布</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">超薄设计</span>
+      <ul class="feature-list">
+        <li>行业最薄旗舰设计</li><li>200MP 主摄</li>
+        <li>无望远镜头</li><li>续航是短板</li>
+        <li>售价高于S25+</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(75,0,130,.15);border:1px solid #7b00ff;color:#cc88ff">Galaxy Z 折叠</span>
+      <h3>Galaxy Z Fold 7</h3><div class="launch">2025 Q3 预计</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">7.6" 内屏</span>
+      <ul class="feature-list">
+        <li>7.6" 大内屏生产力</li><li>S Pen 支持</li>
+        <li>IPX8 防水</li><li>DeX 模式</li>
+        <li>三摄系统升级</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 真实调研 -->
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>购机决策因素（Samsung用户真实调研）</div>
+      <div class="survey-box">
+        <div class="survey-title">Samsung 用户最看重的功能（J.D.Power / Consumer Reports）</div>
+        <div class="pop-row"><div class="pop-label">7年软件更新</div><div class="pop-bar-bg"><div class="pop-bar" style="width:89%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">高</div><div class="pop-src">真实来源</div></div>
+        <div class="pop-row"><div class="pop-label">S Pen 手写笔</div><div class="pop-bar-bg"><div class="pop-bar" style="width:78%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">高</div><div class="pop-src">评测综合</div></div>
+        <div class="pop-row"><div class="pop-label">Galaxy AI功能</div><div class="pop-bar-bg"><div class="pop-bar" style="width:72%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">中高</div><div class="pop-src">评测综合</div></div>
+        <div class="pop-row"><div class="pop-label">Display质量</div><div class="pop-bar-bg"><div class="pop-bar" style="width:85%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">高</div><div class="pop-src">评测综合</div></div>
+        <div class="pop-row"><div class="pop-label">三星生态互联</div><div class="pop-bar-bg"><div class="pop-bar" style="width:68%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">中高</div><div class="pop-src">评测综合</div></div>
+      </div>
+      <div class="disclaimer">⚠️ 标注"真实来源"的数字有报告依据；其余为评测综合推算</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>各系列功能侧重雷达</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 真实评价 -->
+  <div class="section-title"><span class="dot"></span>海外真实用户评价（GSMArena · TechRadar · Tom's Guide）</div>
+  <div class="three-col">
+    <div class="review-card">
+      <div class="review-header"><div><h4>Galaxy S25 Ultra</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">TechRadar</span></div></div><div class="score" style="color:#1428A0">9.0<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:75%"></div><div class="sent-neg" style="width:25%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 75%</span><span style="color:#ff5252">差评 25%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">S Pen是市场唯一选择，生产力无可替代</div>
+          <div class="review-item">SD 8 Elite性能碾压同类，AI推理极快</div>
+          <div class="review-item">7年更新承诺建立购机信心</div>
+          <div class="review-item">One UI 7流畅度大幅提升</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">相机硬件连续多代零更新，令人失望</div>
+          <div class="review-item neg">IP68而非IP69，同价竞品已达IP69</div>
+          <div class="review-item neg">S Pen移除蓝牙功能，无法远程控制</div>
+          <div class="review-item neg">45W充电速度远落后于小米/vivo/OPPO</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Galaxy S25（基础款）</h4><div style="margin-top:4px"><span class="platform-badge">Tom's Guide</span><span class="platform-badge">GSMArena</span></div></div><div class="score" style="color:#1428A0">8.5<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:78%"></div><div class="sent-neg" style="width:22%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 78%</span><span style="color:#ff5252">差评 22%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">市面最轻薄的紧凑旗舰，握持极舒适</div>
+          <div class="review-item">电池寿命超越上代，日常两天无忧</div>
+          <div class="review-item">SD 8 Elite带来流畅的AI体验</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">扬声器比S23 Ultra安静约50%（用户投诉）</div>
+          <div class="review-item neg">相机硬件完全无升级，与前代相同</div>
+          <div class="review-item neg">默认128GB存储，价格却居高不下</div>
+          <div class="review-item neg">Bixby + Gemini双AI同时存在体验混乱</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Galaxy S25 Edge</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">Android Authority</span></div></div><div class="score" style="color:#1428A0">7.8<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:60%"></div><div class="sent-neg" style="width:40%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 60%</span><span style="color:#ff5252">差评 40%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">超薄设计独树一帜，外观引人注目</div>
+          <div class="review-item">200MP主摄表现出色</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">无望远镜头，但价格比S25+更贵</div>
+          <div class="review-item neg">续航仅勉强够用，充电速度慢</div>
+          <div class="review-item neg">扬声器表现普通</div>
+          <div class="review-item neg">"性价比极差的一次性能换设计交易"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 投诉分析 -->
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>高频投诉类别分析</div>
+      <div class="pop-row"><div class="pop-label">🔋 充电速度落后</div><div class="pop-bar-bg"><div class="pop-bar" style="width:88%;background:#ff5252"></div></div><div class="pop-pct">高</div></div>
+      <div class="pop-row"><div class="pop-label">📷 相机硬件停滞</div><div class="pop-bar-bg"><div class="pop-bar" style="width:82%;background:#ff7043"></div></div><div class="pop-pct">高</div></div>
+      <div class="pop-row"><div class="pop-label">🤖 双AI体验混乱</div><div class="pop-bar-bg"><div class="pop-bar" style="width:72%;background:#ffd740"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">💰 价格持续上涨</div><div class="pop-bar-bg"><div class="pop-bar" style="width:68%;background:#ffd740"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">🗑️ 软件预装广告</div><div class="pop-bar-bg"><div class="pop-bar" style="width:60%;background:#ff9800"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">🌊 IP68未达IP69</div><div class="pop-bar-bg"><div class="pop-bar" style="width:50%;background:#00c6ff"></div></div><div class="pop-pct">中低</div></div>
+      <div class="disclaimer">数据来源：GSMArena用户评论综合 · Tom's Guide · TechRadar · AndroidAuthority（2025）</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>各机型好评/差评情感对比</div>
+      <div class="chart-wrap"><canvas id="sentChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 参数对比表 -->
+  <div class="card full">
+    <div class="section-title"><span class="dot"></span>主力机型参数对比</div>
+    <div style="overflow-x:auto">
+      <table class="comp-table">
+        <thead><tr><th>机型</th><th>芯片</th><th>主摄</th><th>电池</th><th>快充</th><th>防水</th><th>S Pen</th><th>更新</th><th>好评率</th></tr></thead>
+        <tbody>
+          <tr><td><strong>S25 Ultra</strong></td><td>SD 8 Elite</td><td>200MP</td><td>5000mAh</td><td>45W</td><td>IP68</td><td><span class="check">✓</span></td><td>7年</td><td><span class="star">★★★★★</span></td></tr>
+          <tr><td><strong>S25+</strong></td><td>SD 8 Elite</td><td>50MP</td><td>4900mAh</td><td>45W</td><td>IP68</td><td><span class="cross">✗</span></td><td>7年</td><td><span class="star">★★★★☆</span></td></tr>
+          <tr><td><strong>S25</strong></td><td>SD 8 Elite</td><td>50MP</td><td>4000mAh</td><td>25W</td><td>IP68</td><td><span class="cross">✗</span></td><td>7年</td><td><span class="star">★★★★☆</span></td></tr>
+          <tr><td><strong>S25 Edge</strong></td><td>SD 8 Elite</td><td>200MP</td><td>—</td><td>25W</td><td>IP68</td><td><span class="cross">✗</span></td><td>7年</td><td><span class="star">★★★☆☆</span></td></tr>
+          <tr><td><strong>Z Fold 7</strong></td><td>SD 8 Elite</td><td>50MP</td><td>4400mAh</td><td>25W</td><td>IPX8</td><td><span class="check">✓</span></td><td>7年</td><td><span class="star">★★★★☆</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<footer>数据来源：GSMArena · TechRadar · Tom's Guide · AndroidAuthority · IDC Q3 2025 · 看板生成 2026-03-18</footer>
+<script>
+new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['影像能力','电池续航','AI功能','软件生态','折叠屏','快充速度'],datasets:[{label:'S25 Ultra',data:[88,80,85,95,50,55],borderColor:'#1428A0',backgroundColor:'rgba(20,40,160,.15)',pointBackgroundColor:'#1428A0',borderWidth:2},{label:'Z Fold 7',data:[80,75,82,90,95,50],borderColor:'#7b61ff',backgroundColor:'rgba(123,97,255,.12)',pointBackgroundColor:'#7b61ff',borderWidth:2},{label:'S25',data:[80,82,82,92,30,40],borderColor:'#6688ff',backgroundColor:'rgba(102,136,255,.10)',pointBackgroundColor:'#6688ff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
+new Chart(document.getElementById('sentChart').getContext('2d'),{type:'bar',data:{labels:['S25 Ultra','S25+','S25','S25 Edge'],datasets:[{label:'好评',data:[75,78,78,60],backgroundColor:'rgba(0,230,118,.75)',borderRadius:6,borderSkipped:false},{label:'差评',data:[25,22,22,40],backgroundColor:'rgba(255,82,82,.75)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7aadff'}},y:{stacked:true,max:100,grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#7aadff',callback:v=>v+'%'}}}}});
+</script>
+</body></html>

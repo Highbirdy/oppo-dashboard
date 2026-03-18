@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Xiaomi 竞争看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a18;color:#e0e0f0;min-height:100vh}
+    header{background:linear-gradient(135deg,#1a0800,#1a0a00,#0d0500);padding:22px 40px;border-bottom:1px solid #FF690033;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .back-btn{font-size:12px;color:#7aadff;background:rgba(255,255,255,.05);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none}
+    .back-btn:hover{background:#FF6900;border-color:#FF6900;color:#fff}
+    .logo{font-size:26px;font-weight:900;color:#FF6900}
+    .ts{font-size:12px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px}
+    .container{max-width:1400px;margin:0 auto;padding:30px 40px}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+    .kpi{background:linear-gradient(135deg,#0d0d22,#12122a);border:1px solid #FF690033;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#FF6900}
+    .kpi .num{font-size:34px;font-weight:800;color:#FF6900;line-height:1}.kpi .lbl{font-size:12px;color:#7aadff;margin-top:5px}.kpi .sub{font-size:10px;color:#3a5a80;margin-top:3px}
+    .section-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#FF6900;box-shadow:0 0 8px #FF6900}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:26px}
+    .card{background:#12122a;border:1px solid #1e3a5f;border-radius:14px;padding:22px}
+    .full{margin-bottom:26px}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+    .product-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;padding:18px;transition:.2s}
+    .product-card:hover{border-color:#FF6900;transform:translateY(-3px);box-shadow:0 6px 24px rgba(255,105,0,.2)}
+    .series-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .product-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+    .launch{font-size:10px;color:#3a5a80;margin-bottom:10px}
+    .chip{font-size:10px;color:#7aadff;background:rgba(255,105,0,.15);border:1px solid rgba(255,105,0,.3);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 2px 2px 0}
+    .feature-list{margin-top:10px;list-style:none}
+    .feature-list li{font-size:11px;color:#a0aabf;padding:3px 0;border-bottom:1px solid #1a1a3a;display:flex;gap:5px}
+    .feature-list li::before{content:'▸';color:#FF6900;flex-shrink:0}
+    .review-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden}
+    .review-header{padding:12px 18px;background:linear-gradient(135deg,rgba(255,105,0,.2),rgba(255,200,0,.1));display:flex;justify-content:space-between;align-items:center}
+    .review-header h4{font-size:14px;font-weight:700;color:#fff}
+    .score{font-size:20px;font-weight:800;color:#FF6900}
+    .review-body{padding:14px 18px}
+    .review-half-title{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+    .pos-title{background:rgba(0,230,118,.1);color:#00e676}
+    .neg-title{background:rgba(255,82,82,.1);color:#ff5252}
+    .review-item{font-size:11px;color:#a0aabf;padding:4px 0 4px 14px;border-bottom:1px solid #1a1a3a;position:relative;line-height:1.5}
+    .review-item::before{content:'✓';position:absolute;left:0;font-size:10px;color:#00e676}
+    .review-item.neg::before{content:'✗';color:#ff5252}
+    .sentiment-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+    .sent-pos{background:#00e676}.sent-neg{background:#ff5252}
+    .sent-labels{display:flex;justify-content:space-between;font-size:10px;color:#4a6fa5}
+    .platform-badge{font-size:10px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 0 0}
+    .pop-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .pop-label{font-size:11px;color:#c0cce0;width:160px;flex-shrink:0}
+    .pop-bar-bg{flex:1;height:8px;background:#1a1a3a;border-radius:4px;overflow:hidden}
+    .pop-bar{height:100%;border-radius:4px}
+    .pop-pct{font-size:11px;color:#7aadff;width:34px;text-align:right}
+    .comp-table{width:100%;border-collapse:collapse;font-size:12px}
+    .comp-table th{background:#0f1a30;color:#7aadff;padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #1e3a5f}
+    .comp-table td{padding:9px 12px;border-bottom:1px solid #1a1a3a;color:#c0cce0}
+    .check{color:#00e676}.cross{color:#ff5252}.star{color:#ffd740}
+    .chart-wrap{position:relative;height:250px}
+    .disclaimer{font-size:10px;color:#2e4a6a;background:rgba(255,255,255,.02);border:1px solid #1a2a3a;border-radius:7px;padding:8px 12px;margin-top:10px;line-height:1.6}
+    footer{text-align:center;padding:20px;font-size:11px;color:#2a3a5a;border-top:1px solid #1e3a5f;line-height:2}
+    @media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.container{padding:20px}.two-col,.three-col{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="back-btn" href="index.html">← 返回Hub</a>
+    <div><div class="logo">Xiaomi</div><div style="font-size:12px;color:#4a6fa5">全球外销情报看板 · 2025–2026 · 含Leica影像真实评测</div></div>
+  </div>
+  <div class="ts">数据更新：2026-03 | IDC真实数据</div>
+</header>
+<div class="container">
+  <div class="kpi-row">
+    <div class="kpi"><div class="num">13.3%</div><div class="lbl">全球市占率</div><div class="sub">IDC Q3 2025 · 全球第3</div></div>
+    <div class="kpi"><div class="num">90W</div><div class="lbl">全球最快充电</div><div class="sub">小米15 90W有线+50W无线</div></div>
+    <div class="kpi"><div class="num">165M</div><div class="lbl">2025年全年出货量</div><div class="sub">IDC全年数据 · 同比稳健增长</div></div>
+    <div class="kpi"><div class="num">72%</div><div class="lbl">海外好评率</div><div class="sub">GSMArena · Tom's Guide综合</div></div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>2025 外销主力机型</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,105,0,.15);border:1px solid #FF6900;color:#ffaa66">数字系列旗舰</span>
+      <h3>Xiaomi 15</h3><div class="launch">2025 Q1 全球MWC发布</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">Leica</span><span class="chip">IP68</span>
+      <ul class="feature-list">
+        <li>三枚50MP Leica相机全焦段</li><li>5240mAh + 90W + 50W无线</li>
+        <li>6.36" LTPO AMOLED Dolby Vision</li><li>Wi-Fi 7 + 蓝牙5.4</li>
+        <li>HyperOS 2 + Google Gemini</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,105,0,.15);border:1px solid #FF6900;color:#ffaa66">数字系列旗舰</span>
+      <h3>Xiaomi 15 Ultra</h3><div class="launch">2025 Q2 全球发布</div>
+      <span class="chip">SD 8 Elite</span><span class="chip">200MP</span>
+      <ul class="feature-list">
+        <li>200MP Leica APO 长焦</li><li>5410mAh + 90W 快充</li>
+        <li>专业相机拨盘物理按键</li><li>1英寸主摄传感器</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,105,0,.15);border:1px solid #FF6900;color:#ffaa66">Redmi 中端</span>
+      <h3>Redmi Note 14 Pro</h3><div class="launch">2025 Q1</div>
+      <span class="chip">D7300</span><span class="chip">IP68</span>
+      <ul class="feature-list">
+        <li>200MP 主摄高像素</li><li>5500mAh + 45W</li>
+        <li>1.5K AMOLED 120Hz</li><li>NFC 支持</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,200,0,.1);border:1px solid #ffd700;color:#ffcc44">POCO 性价比</span>
+      <h3>POCO F7 Pro</h3><div class="launch">2025 Q2</div>
+      <span class="chip">SD 8 Gen3</span><span class="chip">67W</span>
+      <ul class="feature-list">
+        <li>旗舰芯片 · 中端价格</li><li>5200mAh + 67W</li>
+        <li>120Hz AMOLED</li><li>主打性价比游戏用户</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="review-card">
+      <div class="review-header"><div><h4>Xiaomi 15（全球版）</h4><div style="margin-top:4px"><span class="platform-badge">Tom's Guide</span><span class="platform-badge">TechRadar</span></div></div><div class="score" style="color:#FF6900">8.9<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:72%"></div><div class="sent-neg" style="width:28%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 72%</span><span style="color:#ff5252">差评 28%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">90W充电速度让所有竞品汗颜，35分钟充满</div>
+          <div class="review-item">紧凑机身握持感极佳，是2025最好的小屏旗舰</div>
+          <div class="review-item">Leica三摄全场景覆盖，人像色彩准确</div>
+          <div class="review-item">SD 8 Elite性能几乎无法触及上限</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">预装大量广告+推荐APP，严重影响体验</div>
+          <div class="review-item neg">望远从3.2x缩减至2.6x，灵活性下降</div>
+          <div class="review-item neg">夜间超广角表现一般，进光量不够</div>
+          <div class="review-item neg">美国买不到官方版，欧洲也有部分区域受限</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Xiaomi 15 Ultra</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">NotebookCheck</span></div></div><div class="score" style="color:#FF6900">9.1<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:78%"></div><div class="sent-neg" style="width:22%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 78%</span><span style="color:#ff5252">差评 22%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">200MP Leica长焦细节惊人，动物/风景摄影封神</div>
+          <div class="review-item">专业相机拨盘设计，摄影师友好</div>
+          <div class="review-item">1英寸传感器主摄宽容度极强</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">发热明显，长时间拍视频会降频</div>
+          <div class="review-item neg">HyperOS仍有bloatware问题</div>
+          <div class="review-item neg">美国无售卖渠道</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Redmi Note 14 Pro</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">Android Authority</span></div></div><div class="score" style="color:#FF6900">8.2<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:70%"></div><div class="sent-neg" style="width:30%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 70%</span><span style="color:#ff5252">差评 30%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">200MP主摄在中端机中绝无仅有</div>
+          <div class="review-item">IP68防水在这个价位很难得</div>
+          <div class="review-item">AMOLED屏幕显示效果出众</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">芯片性能中规中矩，游戏体验一般</div>
+          <div class="review-item neg">广告更多，中端机MIUI问题更突出</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>高频投诉类别</div>
+      <div class="pop-row"><div class="pop-label">🗑️ 预装广告/Bloatware</div><div class="pop-bar-bg"><div class="pop-bar" style="width:90%;background:#ff5252"></div></div><div class="pop-pct">极高</div></div>
+      <div class="pop-row"><div class="pop-label">🌍 美国/部分欧洲无售</div><div class="pop-bar-bg"><div class="pop-bar" style="width:82%;background:#ff7043"></div></div><div class="pop-pct">高</div></div>
+      <div class="pop-row"><div class="pop-label">🔥 长时使用发热</div><div class="pop-bar-bg"><div class="pop-bar" style="width:68%;background:#ffd740"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">📷 望远焦段缩短</div><div class="pop-bar-bg"><div class="pop-bar" style="width:55%;background:#ff9800"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">🔒 UWB芯片缺失</div><div class="pop-bar-bg"><div class="pop-bar" style="width:40%;background:#00c6ff"></div></div><div class="pop-pct">中低</div></div>
+      <div class="disclaimer">数据来源：GSMArena · Tom's Guide · TechRadar 2025年评测综合</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>各机型综合能力雷达</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="section-title"><span class="dot"></span>主力机型参数对比</div>
+    <div style="overflow-x:auto">
+      <table class="comp-table">
+        <thead><tr><th>机型</th><th>芯片</th><th>主摄</th><th>电池</th><th>快充</th><th>Leica</th><th>防水</th><th>好评率</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Xiaomi 15 Ultra</strong></td><td>SD 8 Elite</td><td>200MP 1"</td><td>5410mAh</td><td>90W</td><td><span class="check">✓</span></td><td>IP68</td><td><span class="star">★★★★★</span></td></tr>
+          <tr><td><strong>Xiaomi 15</strong></td><td>SD 8 Elite</td><td>50MP×3</td><td>5240mAh</td><td>90W</td><td><span class="check">✓</span></td><td>IP68</td><td><span class="star">★★★★☆</span></td></tr>
+          <tr><td><strong>Redmi Note 14 Pro</strong></td><td>D7300</td><td>200MP</td><td>5500mAh</td><td>45W</td><td><span class="cross">✗</span></td><td>IP68</td><td><span class="star">★★★☆☆</span></td></tr>
+          <tr><td><strong>POCO F7 Pro</strong></td><td>SD 8 Gen3</td><td>50MP</td><td>5200mAh</td><td>67W</td><td><span class="cross">✗</span></td><td>IP54</td><td><span class="star">★★★★☆</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<footer>数据来源：GSMArena · Tom's Guide · TechRadar · NotebookCheck · IDC Q3 2025 · 看板生成 2026-03-18</footer>
+<script>
+new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['影像能力','电池续航','快充速度','AI功能','软件体验','性价比'],datasets:[{label:'Xiaomi 15 Ultra',data:[92,85,90,80,72,80],borderColor:'#FF6900',backgroundColor:'rgba(255,105,0,.15)',pointBackgroundColor:'#FF6900',borderWidth:2},{label:'Xiaomi 15',data:[88,88,90,80,72,90],borderColor:'#ffcc44',backgroundColor:'rgba(255,204,68,.12)',pointBackgroundColor:'#ffcc44',borderWidth:2},{label:'Redmi Note 14 Pro',data:[80,85,68,70,68,95],borderColor:'#ff5252',backgroundColor:'rgba(255,82,82,.10)',pointBackgroundColor:'#ff5252',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
+</script>
+</body></html>

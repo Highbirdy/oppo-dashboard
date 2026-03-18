@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Motorola 竞争看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a18;color:#e0e0f0;min-height:100vh}
+    header{background:linear-gradient(135deg,#1a0000,#1a0500,#0d0000);padding:22px 40px;border-bottom:1px solid #CC000033;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .back-btn{font-size:12px;color:#7aadff;background:rgba(255,255,255,.05);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none}
+    .back-btn:hover{background:#CC0000;border-color:#CC0000;color:#fff}
+    .logo{font-size:26px;font-weight:900;color:#CC0000}
+    .ts{font-size:12px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px}
+    .container{max-width:1400px;margin:0 auto;padding:30px 40px}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+    .kpi{background:linear-gradient(135deg,#0d0d22,#12122a);border:1px solid #CC000033;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#CC0000}
+    .kpi .num{font-size:34px;font-weight:800;color:#CC0000;line-height:1}.kpi .lbl{font-size:12px;color:#7aadff;margin-top:5px}.kpi .sub{font-size:10px;color:#3a5a80;margin-top:3px}
+    .latam-banner{background:linear-gradient(135deg,rgba(204,0,0,.12),rgba(255,100,0,.06));border:1px solid rgba(204,0,0,.3);border-radius:14px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .latam-stat{background:rgba(204,0,0,.15);border:1px solid rgba(204,0,0,.3);border-radius:8px;padding:6px 14px;font-size:12px;color:#ff6666;font-weight:700}
+    .section-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#CC0000;box-shadow:0 0 8px #CC0000}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:26px}
+    .card{background:#12122a;border:1px solid #1e3a5f;border-radius:14px;padding:22px}
+    .full{margin-bottom:26px}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+    .product-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;padding:18px;transition:.2s}
+    .product-card:hover{border-color:#CC0000;transform:translateY(-3px);box-shadow:0 6px 24px rgba(204,0,0,.2)}
+    .series-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .product-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+    .launch{font-size:10px;color:#3a5a80;margin-bottom:10px}
+    .chip{font-size:10px;color:#7aadff;background:rgba(204,0,0,.15);border:1px solid rgba(204,0,0,.3);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 2px 2px 0}
+    .feature-list{margin-top:10px;list-style:none}
+    .feature-list li{font-size:11px;color:#a0aabf;padding:3px 0;border-bottom:1px solid #1a1a3a;display:flex;gap:5px}
+    .feature-list li::before{content:'▸';color:#CC0000;flex-shrink:0}
+    .review-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden}
+    .review-header{padding:12px 18px;background:linear-gradient(135deg,rgba(204,0,0,.2),rgba(255,100,0,.1));display:flex;justify-content:space-between;align-items:center}
+    .review-header h4{font-size:14px;font-weight:700;color:#fff}
+    .score{font-size:20px;font-weight:800;color:#CC0000}
+    .review-body{padding:14px 18px}
+    .review-half-title{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+    .pos-title{background:rgba(0,230,118,.1);color:#00e676}
+    .neg-title{background:rgba(255,82,82,.1);color:#ff5252}
+    .review-item{font-size:11px;color:#a0aabf;padding:4px 0 4px 14px;border-bottom:1px solid #1a1a3a;position:relative;line-height:1.5}
+    .review-item::before{content:'✓';position:absolute;left:0;font-size:10px;color:#00e676}
+    .review-item.neg::before{content:'✗';color:#ff5252}
+    .sentiment-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+    .sent-pos{background:#00e676}.sent-neg{background:#ff5252}
+    .sent-labels{display:flex;justify-content:space-between;font-size:10px;color:#4a6fa5}
+    .platform-badge{font-size:10px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 0 0}
+    .pop-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .pop-label{font-size:11px;color:#c0cce0;width:160px;flex-shrink:0}
+    .pop-bar-bg{flex:1;height:8px;background:#1a1a3a;border-radius:4px;overflow:hidden}
+    .pop-bar{height:100%;border-radius:4px}
+    .pop-pct{font-size:11px;color:#7aadff;width:34px;text-align:right}
+    .comp-table{width:100%;border-collapse:collapse;font-size:12px}
+    .comp-table th{background:#0f1a30;color:#7aadff;padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #1e3a5f}
+    .comp-table td{padding:9px 12px;border-bottom:1px solid #1a1a3a;color:#c0cce0}
+    .check{color:#00e676}.cross{color:#ff5252}.star{color:#ffd740}
+    .chart-wrap{position:relative;height:250px}
+    .disclaimer{font-size:10px;color:#2e4a6a;border:1px solid #1a2a3a;border-radius:7px;padding:8px 12px;margin-top:10px;line-height:1.6}
+    footer{text-align:center;padding:20px;font-size:11px;color:#2a3a5a;border-top:1px solid #1e3a5f;line-height:2}
+    @media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.container{padding:20px}.two-col,.three-col{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="back-btn" href="index.html">← 返回Hub</a>
+    <div><div class="logo">Motorola</div><div style="font-size:12px;color:#4a6fa5">拉美主导品牌 · 外销情报看板 · 2025–2026</div></div>
+  </div>
+  <div class="ts">数据更新：2026-03 | 含拉美真实市场数据</div>
+</header>
+<div class="container">
+
+  <div class="latam-banner">
+    <div style="font-size:40px">🌎</div>
+    <div>
+      <div style="font-size:15px;font-weight:700;color:#ff6666;margin-bottom:6px">拉丁美洲绝对霸主 · 真实数据</div>
+      <div style="font-size:12px;color:#a0aabf;line-height:1.8">Motorola 在拉美市场拥有无可撼动的用户忠诚度，历史根基超过30年</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-left:auto">
+      <span class="latam-stat">55% 拉美市占率 ✓真实</span>
+      <span class="latam-stat">28% 全球折叠屏 Q2 2025 ✓真实</span>
+      <span class="latam-stat">巴西25%市占 ✓真实</span>
+      <span class="latam-stat">Razr $700 最便宜翻盖折叠</span>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="num">55%</div><div class="lbl">拉丁美洲市占率</div><div class="sub">Counterpoint Research · 真实数据</div></div>
+    <div class="kpi"><div class="num">28%</div><div class="lbl">全球折叠屏份额</div><div class="sub">Q2 2025 · 超越Samsung（降至9%）</div></div>
+    <div class="kpi"><div class="num">$700</div><div class="lbl">Razr 2025 起售价</div><div class="sub">全球最便宜翻盖折叠屏手机</div></div>
+    <div class="kpi"><div class="num">68%</div><div class="lbl">海外好评率</div><div class="sub">AndroidCentral · Medium 综合</div></div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>2025 外销主力机型</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(204,0,0,.15);border:1px solid #CC0000;color:#ff6666">Razr 翻盖折叠</span>
+      <h3>Razr 2025</h3><div class="launch">2025 Q2 全球发布</div>
+      <span class="chip">D7300X</span><span class="chip">$700起</span>
+      <ul class="feature-list">
+        <li>全球最低价翻盖折叠屏 $700</li><li>全覆盖外屏（无需打开就能用）</li>
+        <li>4200mAh + 45W 快充</li><li>更大电池+新铰链（相比2024版）</li>
+        <li>Moto AI 集成</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(204,0,0,.15);border:1px solid #CC0000;color:#ff6666">Razr+ 旗舰翻盖</span>
+      <h3>Razr+ 2025</h3><div class="launch">2025 Q2</div>
+      <span class="chip">SD 8s Gen3</span><span class="chip">4700mAh</span>
+      <ul class="feature-list">
+        <li>旗舰级翻盖折叠屏</li><li>更大外屏覆盖</li>
+        <li>4700mAh + 45W</li><li>更强相机系统</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(204,0,0,.15);border:1px solid #CC0000;color:#ff6666">Edge 中高端</span>
+      <h3>Edge 2025</h3><div class="launch">2025 Q1 · $549</div>
+      <span class="chip">D7400 Ultra</span><span class="chip">IP68/69</span>
+      <ul class="feature-list">
+        <li>IP68+IP69双防水认证</li><li>三摄 3x 光学变焦</li>
+        <li>4500mAh + 68W 快充</li><li>素皮后盖质感出众</li>
+        <li>4500nit峰值亮度显示屏</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,150,0,.1);border:1px solid #ff9600;color:#ffcc44">G系列大众</span>
+      <h3>Moto G85 5G</h3><div class="launch">2025 Q1</div>
+      <span class="chip">SD 6 Gen3</span><span class="chip">33W</span>
+      <ul class="feature-list">
+        <li>拉美中端主力机型</li><li>5000mAh + 33W</li>
+        <li>6.67" AMOLED 144Hz</li><li>价格亲民 · 主打入门5G</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="review-card">
+      <div class="review-header"><div><h4>Razr 2025</h4><div style="margin-top:4px"><span class="platform-badge">AndroidCentral</span><span class="platform-badge">Medium</span></div></div><div class="score" style="color:#CC0000">8.4<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:72%"></div><div class="sent-neg" style="width:28%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 72%</span><span style="color:#ff5252">差评 28%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">$700折叠屏全球最便宜，颠覆折叠屏门槛</div>
+          <div class="review-item">全覆盖外屏设计，三星Z Flip不具备</div>
+          <div class="review-item">足够日常任务，续航比前代提升</div>
+          <div class="review-item">设计时尚，翻盖持握有趣</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">D7300X芯片性能不够，大型游戏卡顿</div>
+          <div class="review-item neg">相机拍照慢，优化不足</div>
+          <div class="review-item neg">仅3年OS更新，折叠屏这个价不划算</div>
+          <div class="review-item neg">美欧售价分裂，欧洲比美国贵很多</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Edge 2025</h4><div style="margin-top:4px"><span class="platform-badge">AndroidCentral</span><span class="platform-badge">TechTalkTown</span></div></div><div class="score" style="color:#CC0000">6.8<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:55%"></div><div class="sent-neg" style="width:45%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 55%</span><span style="color:#ff5252">差评 45%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">IP68/IP69双认证在$549价位少见</div>
+          <div class="review-item">三摄系统有3x光学变焦</div>
+          <div class="review-item">68W快充速度满意</div>
+          <div class="review-item">素皮后盖质感胜过同价塑料竞品</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">D7400 Ultra性能卡顿明显，日常使用都感觉</div>
+          <div class="review-item neg">Moto AI功能"感觉半成品不完整"</div>
+          <div class="review-item neg">只有3年更新，$549价格不值</div>
+          <div class="review-item neg">建议等降价到$350-400再买</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>🌎 拉美市场分析</h4><div style="margin-top:4px"><span class="platform-badge">Counterpoint</span><span class="platform-badge">Gadget Hacks</span></div></div><div class="score" style="color:#CC0000">主导 🏆</div></div>
+      <div class="review-body">
+        <div style="background:rgba(204,0,0,.08);border:1px solid rgba(204,0,0,.2);border-radius:8px;padding:12px;margin-bottom:10px">
+          <div style="font-size:11px;color:#ff6666;font-weight:700;margin-bottom:6px">真实市场数据（Counterpoint Research）</div>
+          <div style="font-size:11px;color:#a0aabf;line-height:1.9">
+            🌎 拉美整体市占率：<strong style="color:#ff6666">55%</strong><br>
+            🇧🇷 巴西市占率：<strong style="color:#ff6666">25%</strong><br>
+            🇺🇸 美国折叠屏市占：<strong style="color:#ff6666">50%</strong>（Gadget Hacks）<br>
+            🌍 全球折叠屏 Q2 2025：<strong style="color:#ff6666">28%</strong><br>
+            📈 折叠屏Q2 2025同比增长45% YoY
+          </div>
+        </div>
+        <div><span class="review-half-title pos-title">+ 拉美优势根基</span>
+          <div class="review-item">30年品牌历史，用户情感依赖深厚</div>
+          <div class="review-item">本地化服务网络覆盖全面</div>
+          <div class="review-item">价格策略精准覆盖大众市场</div>
+        </div>
+        <div style="margin-top:8px"><span class="review-half-title neg-title">- 竞争压力</span>
+          <div class="review-item neg">Samsung持续强攻A系列中端线</div>
+          <div class="review-item neg">vivo Jovi 2025Q2进入巴西</div>
+          <div class="review-item neg">Xiaomi在拉美份额快速增长</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>高频投诉类别</div>
+      <div class="pop-row"><div class="pop-label">⚡ 芯片性能不足</div><div class="pop-bar-bg"><div class="pop-bar" style="width:85%;background:#ff5252"></div></div><div class="pop-pct">高</div></div>
+      <div class="pop-row"><div class="pop-label">📅 3年更新太短</div><div class="pop-bar-bg"><div class="pop-bar" style="width:78%;background:#ff7043"></div></div><div class="pop-pct">高</div></div>
+      <div class="pop-row"><div class="pop-label">📷 相机拍照慢</div><div class="pop-bar-bg"><div class="pop-bar" style="width:70%;background:#ffd740"></div></div><div class="pop-pct">中高</div></div>
+      <div class="pop-row"><div class="pop-label">🤖 Moto AI半成品</div><div class="pop-bar-bg"><div class="pop-bar" style="width:65%;background:#ff9800"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">💶 美欧价格差异大</div><div class="pop-bar-bg"><div class="pop-bar" style="width:55%;background:#00c6ff"></div></div><div class="pop-pct">中</div></div>
+      <div class="disclaimer">来源：AndroidCentral · TechTalkTown · Medium · Gadget Hacks 2025评测</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>各机型综合能力雷达</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+</div>
+<footer>数据来源：AndroidCentral · Counterpoint Research · Gadget Hacks · Medium GroundedTech · TechTalkTown · 看板生成 2026-03-18</footer>
+<script>
+new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['影像能力','电池续航','性价比','设计外观','拉美市占','软件更新'],datasets:[{label:'Razr 2025',data:[70,75,88,90,95,60],borderColor:'#CC0000',backgroundColor:'rgba(204,0,0,.15)',pointBackgroundColor:'#CC0000',borderWidth:2},{label:'Edge 2025',data:[75,78,85,88,90,60],borderColor:'#ff7043',backgroundColor:'rgba(255,112,67,.12)',pointBackgroundColor:'#ff7043',borderWidth:2},{label:'G85',data:[60,80,92,72,88,58],borderColor:'#ffd740',backgroundColor:'rgba(255,215,64,.10)',pointBackgroundColor:'#ffd740',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
+</script>
+</body></html>

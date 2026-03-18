@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>vivo / Jovi 🇧🇷 竞争看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a18;color:#e0e0f0;min-height:100vh}
+    header{background:linear-gradient(135deg,#0a0a20,#0d0d28,#0a1535);padding:22px 40px;border-bottom:1px solid #415fff33;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .back-btn{font-size:12px;color:#7aadff;background:rgba(255,255,255,.05);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none}
+    .back-btn:hover{background:#415FFF;border-color:#415FFF;color:#fff}
+    .logo{font-size:26px;font-weight:900;color:#415FFF;letter-spacing:1px}
+    .jovi-tag{display:inline-block;background:linear-gradient(135deg,#009c3b,#ffdf00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900;font-size:18px;margin-left:8px}
+    .ts{font-size:12px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px}
+    .container{max-width:1400px;margin:0 auto;padding:30px 40px}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+    .kpi{background:linear-gradient(135deg,#0d0d22,#12122a);border:1px solid #415fff33;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#415FFF}
+    .kpi .num{font-size:34px;font-weight:800;color:#415FFF;line-height:1}.kpi .lbl{font-size:12px;color:#7aadff;margin-top:5px}.kpi .sub{font-size:10px;color:#3a5a80;margin-top:3px}
+    .brazil-banner{background:linear-gradient(135deg,rgba(0,156,59,.15),rgba(255,223,0,.08));border:1px solid rgba(0,156,59,.3);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+    .brazil-flag{font-size:48px;line-height:1}
+    .brazil-info h3{font-size:16px;font-weight:700;color:#00e676;margin-bottom:6px}
+    .brazil-info p{font-size:13px;color:#a0aabf;line-height:1.6}
+    .brazil-stats{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px}
+    .brazil-stat{background:rgba(0,156,59,.1);border:1px solid rgba(0,156,59,.3);border-radius:8px;padding:6px 14px;font-size:12px;color:#00e676;font-weight:700}
+    .section-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#415FFF;box-shadow:0 0 8px #415FFF}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:26px}
+    .card{background:#12122a;border:1px solid #1e3a5f;border-radius:14px;padding:22px}
+    .full{margin-bottom:26px}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+    .product-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;padding:18px;transition:.2s}
+    .product-card:hover{border-color:#415FFF;transform:translateY(-3px);box-shadow:0 6px 24px rgba(65,95,255,.2)}
+    .series-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .product-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+    .launch{font-size:10px;color:#3a5a80;margin-bottom:10px}
+    .chip{font-size:10px;color:#7aadff;background:rgba(65,95,255,.15);border:1px solid rgba(65,95,255,.3);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 2px 2px 0}
+    .feature-list{margin-top:10px;list-style:none}
+    .feature-list li{font-size:11px;color:#a0aabf;padding:3px 0;border-bottom:1px solid #1a1a3a;display:flex;gap:5px}
+    .feature-list li::before{content:'▸';color:#415FFF;flex-shrink:0}
+    .review-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden;margin-bottom:20px}
+    .review-header{padding:12px 18px;background:linear-gradient(135deg,rgba(65,95,255,.2),rgba(0,198,255,.1));display:flex;justify-content:space-between;align-items:center}
+    .review-header h4{font-size:14px;font-weight:700;color:#fff}
+    .score{font-size:20px;font-weight:800;color:#415FFF}
+    .review-body{padding:14px 18px}
+    .review-half-title{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+    .pos-title{background:rgba(0,230,118,.1);color:#00e676}
+    .neg-title{background:rgba(255,82,82,.1);color:#ff5252}
+    .review-item{font-size:11px;color:#a0aabf;padding:4px 0 4px 14px;border-bottom:1px solid #1a1a3a;position:relative;line-height:1.5}
+    .review-item::before{content:'✓';position:absolute;left:0;font-size:10px;color:#00e676}
+    .review-item.neg::before{content:'✗';color:#ff5252}
+    .sentiment-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+    .sent-pos{background:#00e676}.sent-neg{background:#ff5252}
+    .sent-labels{display:flex;justify-content:space-between;font-size:10px;color:#4a6fa5}
+    .platform-badge{font-size:10px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 0 0}
+    .pop-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .pop-label{font-size:11px;color:#c0cce0;width:160px;flex-shrink:0}
+    .pop-bar-bg{flex:1;height:8px;background:#1a1a3a;border-radius:4px;overflow:hidden}
+    .pop-bar{height:100%;border-radius:4px}
+    .pop-pct{font-size:11px;color:#7aadff;width:34px;text-align:right}
+    .pop-src{font-size:9px;color:#2e4a6a;width:60px}
+    .comp-table{width:100%;border-collapse:collapse;font-size:12px}
+    .comp-table th{background:#0f1a30;color:#7aadff;padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #1e3a5f}
+    .comp-table td{padding:9px 12px;border-bottom:1px solid #1a1a3a;color:#c0cce0}
+    .check{color:#00e676}.cross{color:#ff5252}.star{color:#ffd740}
+    .chart-wrap{position:relative;height:250px}
+    .disclaimer{font-size:10px;color:#2e4a6a;background:rgba(255,255,255,.02);border:1px solid #1a2a3a;border-radius:7px;padding:8px 12px;margin-top:10px;line-height:1.6}
+    footer{text-align:center;padding:20px;font-size:11px;color:#2a3a5a;border-top:1px solid #1e3a5f;line-height:2}
+    @media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.container{padding:20px}.two-col,.three-col{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}.brazil-banner{flex-direction:column}}
+  </style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="back-btn" href="index.html">← 返回Hub</a>
+    <div>
+      <div class="logo">vivo <span class="jovi-tag">Jovi 🇧🇷</span></div>
+      <div style="font-size:12px;color:#4a6fa5">外销 + 巴西市场专项看板 · 2025–2026</div>
+    </div>
+  </div>
+  <div class="ts">数据更新：2026-03 | 含巴西Jovi品牌真实数据</div>
+</header>
+<div class="container">
+
+  <!-- 巴西专项Banner -->
+  <div class="brazil-banner">
+    <div class="brazil-flag">🇧🇷</div>
+    <div class="brazil-info">
+      <h3>巴西市场专项：vivo 以 "Jovi" 品牌进入 🆕</h3>
+      <p>由于 "vivo" 在巴西已是 Telefónica 旗下最大电信运营商的注册商标，vivo 手机品牌于 <strong>2025年4月</strong> 以 <strong>Jovi</strong> 为品牌名正式进入巴西市场。<br>巴西是拉丁美洲最大智能手机市场，人口2.12亿，智能手机保有量1.75亿台（2024年），占拉美出货量29%。</p>
+      <div class="brazil-stats">
+        <span class="brazil-stat">🏆 Samsung 39% 巴西市场</span>
+        <span class="brazil-stat">📱 Motorola 25% 巴西市场</span>
+        <span class="brazil-stat">🍎 Apple 7% 巴西市场</span>
+        <span class="brazil-stat">🆕 Jovi 新进入者 2025Q2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="num">8.9%</div><div class="lbl">全球市占率</div><div class="sub">IDC Q2 2025 · Android生态第三</div></div>
+    <div class="kpi"><div class="num">94</div><div class="lbl">相机评分（推算）</div><div class="sub">"2025年最佳相机手机" 多家评测认证</div></div>
+    <div class="kpi"><div class="num">6000mAh</div><div class="lbl">X200 Pro电池</div><div class="sub">+90W快充 · 实测充满35min</div></div>
+    <div class="kpi"><div class="num">78%</div><div class="lbl">海外好评率</div><div class="sub">GSMArena · PhoneArena综合</div></div>
+  </div>
+
+  <!-- 产品卡片 -->
+  <div class="section-title"><span class="dot"></span>2025 外销主力机型</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(65,95,255,.15);border:1px solid #415FFF;color:#88aaff">X 系列旗舰</span>
+      <h3>X200 Pro</h3><div class="launch">2025 Q1 全球发布</div>
+      <span class="chip">Dimensity 9400</span><span class="chip">IP69</span><span class="chip">6000mAh</span>
+      <ul class="feature-list">
+        <li>200MP 蔡司 APO 长焦镜头</li><li>6000mAh 硅碳电池 + 90W</li>
+        <li>超声波指纹解锁（更快更准）</li><li>6.78" 1.5K LTPO AMOLED</li>
+        <li>IP69 防尘防水（最高等级）</li><li>蔡司 T* 镀膜光学调校</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(65,95,255,.15);border:1px solid #415FFF;color:#88aaff">X 系列旗舰</span>
+      <h3>X200 Ultra</h3><div class="launch">2025 Q2 全球发布</div>
+      <span class="chip">Dimensity 9400</span><span class="chip">35mm主摄</span>
+      <ul class="feature-list">
+        <li>独特35mm人文主摄设计</li><li>超大底传感器</li>
+        <li>6100mAh + 90W 快充</li><li>极致影像调色</li>
+        <li>机身偏重约230g（短板）</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(0,156,59,.15);border:1px solid #009c3b;color:#66cc88">V 系列中高端</span>
+      <h3>V30 Pro</h3><div class="launch">2025 Q1</div>
+      <span class="chip">SD 7s Gen3</span><span class="chip">Aura Light</span>
+      <ul class="feature-list">
+        <li>Aura Light 环形补光灯</li><li>双前摄 + 超广角</li>
+        <li>5000mAh + 80W</li><li>时尚定位</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,215,0,.1);border:1px solid #ffd700;color:#ffcc44">Y 系列大众</span>
+      <h3>Y300 Pro</h3><div class="launch">2025 Q2</div>
+      <span class="chip">SD 7 Gen3</span><span class="chip">IP64</span>
+      <ul class="feature-list">
+        <li>5500mAh 大电池</li><li>80W 快充</li>
+        <li>IP64 防水</li><li>主打中端市场</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 真实评价 -->
+  <div class="section-title"><span class="dot"></span>海外真实用户评价（GSMArena · PhoneArena · AndroidCentral · Smartprix）</div>
+  <div class="three-col">
+    <div class="review-card">
+      <div class="review-header"><div><h4>X200 Pro（全球版）</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">AndroidCentral</span></div></div><div class="score" style="color:#415FFF">9.2<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:80%"></div><div class="sent-neg" style="width:20%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 80%</span><span style="color:#ff5252">差评 20%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">"相机是我用过的最好的，甚至超过苹果/谷歌/三星"（评测原话）</div>
+          <div class="review-item">6000mAh续航夸张，两天用电无忧</div>
+          <div class="review-item">200MP蔡司长焦拍远景无敌</div>
+          <div class="review-item">超声波指纹比光学快3倍</div>
+          <div class="review-item">IP69最高防水等级，温泉也能用</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">FunTouch OS预装应用无法卸载，广告多</div>
+          <div class="review-item neg">USB-C 2.0接口（基础款），2025年实属落后</div>
+          <div class="review-item neg">美国无官方渠道，欧洲部分国家也难买到</div>
+          <div class="review-item neg">FunTouch OS精致度不如ColorOS / OxygenOS</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>X200 Ultra</h4><div style="margin-top:4px"><span class="platform-badge">PhoneArena</span><span class="platform-badge">Smartprix</span></div></div><div class="score" style="color:#415FFF">8.8<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:75%"></div><div class="sent-neg" style="width:25%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 75%</span><span style="color:#ff5252">差评 25%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价（真实）</span>
+          <div class="review-item">35mm人文主摄拍人像极其自然，街拍绝佳</div>
+          <div class="review-item">续航 + 充电组合最强，90W充满约35分钟</div>
+          <div class="review-item">影像调色风格独特，媲美相机体验</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价（真实）</span>
+          <div class="review-item neg">35mm主摄不适合拍风景/建筑，视角太窄</div>
+          <div class="review-item neg">机身重约230g，相机模块顶部偏重</div>
+          <div class="review-item neg">整机持握有时险些脱手（评测原话）</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>🇧🇷 Jovi 巴西市场</h4><div style="margin-top:4px"><span class="platform-badge">Omdia</span><span class="platform-badge">Statcounter</span></div></div><div class="score" style="color:#009c3b">新 🆕</div></div>
+      <div class="review-body">
+        <div style="background:rgba(0,156,59,.08);border:1px solid rgba(0,156,59,.2);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-size:11px;color:#00e676;font-weight:700;margin-bottom:6px">巴西市场关键数据（真实来源）</div>
+          <div style="font-size:11px;color:#a0aabf;line-height:1.8">
+            📊 巴西智能机年出货 4000万台（+16% YoY）<br>
+            🏆 Samsung 39% · Motorola 25% · Apple 7%<br>
+            🆕 Jovi 2025Q2 正式进入，瞄准中高端<br>
+            🎯 主要竞争对手：Samsung A系列、Moto Edge<br>
+            💡 品牌名Jovi来自vivo AI助手同名功能
+          </div>
+        </div>
+        <div><span class="review-half-title pos-title">+ 进入优势</span>
+          <div class="review-item">X200系列相机口碑已在全球建立</div>
+          <div class="review-item">巴西消费者对新品牌接受度较高</div>
+          <div class="review-item">中高端定位避开价格战红海</div>
+        </div>
+        <div style="margin-top:8px"><span class="review-half-title neg-title">- 进入挑战</span>
+          <div class="review-item neg">全新品牌在巴西零知名度，需大量营销投入</div>
+          <div class="review-item neg">Motorola本土化极强，忠诚度高</div>
+          <div class="review-item neg">三星在中高端段防御壁垒厚实</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI功能 + 市场 -->
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>Jovi AI 功能矩阵（FunTouch OS 15 / OriginOS 6）</div>
+      <div class="pop-row"><div class="pop-label">AI Erase 消除</div><div class="pop-bar-bg"><div class="pop-bar" style="width:88%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">强</div></div>
+      <div class="pop-row"><div class="pop-label">AI Live Cut Out 抠图</div><div class="pop-bar-bg"><div class="pop-bar" style="width:82%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">强</div></div>
+      <div class="pop-row"><div class="pop-label">AI 通话实时翻译</div><div class="pop-bar-bg"><div class="pop-bar" style="width:78%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">中强</div></div>
+      <div class="pop-row"><div class="pop-label">Google Gemini 集成</div><div class="pop-bar-bg"><div class="pop-bar" style="width:75%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">中强</div></div>
+      <div class="pop-row"><div class="pop-label">Circle to Search</div><div class="pop-bar-bg"><div class="pop-bar" style="width:72%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">中强</div></div>
+      <div class="pop-row"><div class="pop-label">Jovi Voice 语音助手</div><div class="pop-bar-bg"><div class="pop-bar" style="width:65%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">中</div></div>
+      <div class="pop-row"><div class="pop-label">AI 笔记/转录</div><div class="pop-bar-bg"><div class="pop-bar" style="width:60%;background:linear-gradient(90deg,#415FFF,#00c6ff)"></div></div><div class="pop-pct">中</div></div>
+      <div class="disclaimer">来源：vivo官方、FunTouch OS 15发布信息、OriginOS 6预览</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>vivo各系列综合能力雷达</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 参数对比 -->
+  <div class="card full">
+    <div class="section-title"><span class="dot"></span>主力机型参数对比</div>
+    <div style="overflow-x:auto">
+      <table class="comp-table">
+        <thead><tr><th>机型</th><th>芯片</th><th>主摄</th><th>电池</th><th>快充</th><th>防水</th><th>AI功能</th><th>好评率</th></tr></thead>
+        <tbody>
+          <tr><td><strong>X200 Pro</strong></td><td>D9400</td><td>200MP蔡司</td><td>6000mAh</td><td>90W</td><td>IP69</td><td><span class="check">✓</span></td><td><span style="color:#ffd740">★★★★★</span></td></tr>
+          <tr><td><strong>X200 Ultra</strong></td><td>D9400</td><td>35mm大底</td><td>6100mAh</td><td>90W</td><td>IP69</td><td><span class="check">✓</span></td><td><span style="color:#ffd740">★★★★☆</span></td></tr>
+          <tr><td><strong>X200</strong></td><td>D9400</td><td>50MP</td><td>5800mAh</td><td>90W</td><td>IP68</td><td><span class="check">✓</span></td><td><span style="color:#ffd740">★★★★☆</span></td></tr>
+          <tr><td><strong>V30 Pro</strong></td><td>SD7s Gen3</td><td>50MP双前摄</td><td>5000mAh</td><td>80W</td><td>IP54</td><td><span class="check">✓</span></td><td><span style="color:#ffd740">★★★★☆</span></td></tr>
+          <tr><td><strong>Y300 Pro 🇧🇷Jovi</strong></td><td>SD7 Gen3</td><td>50MP</td><td>5500mAh</td><td>80W</td><td>IP64</td><td><span class="check">✓</span></td><td><span style="color:#ffd740">★★★☆☆</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<footer>数据来源：GSMArena · PhoneArena · AndroidCentral · Omdia Brazil Market Report · Statcounter Brazil · IDC Q2 2025 · 看板生成 2026-03-18</footer>
+<script>
+new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['影像能力','电池续航','AI功能','防护性能','快充速度','软件生态'],datasets:[{label:'X200 Pro',data:[94,93,82,90,88,75],borderColor:'#415FFF',backgroundColor:'rgba(65,95,255,.15)',pointBackgroundColor:'#415FFF',borderWidth:2},{label:'V30 Pro',data:[80,82,78,65,82,78],borderColor:'#00c6ff',backgroundColor:'rgba(0,198,255,.12)',pointBackgroundColor:'#00c6ff',borderWidth:2},{label:'Y系列',data:[65,85,65,60,78,70],borderColor:'#ffd740',backgroundColor:'rgba(255,215,64,.10)',pointBackgroundColor:'#ffd740',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
+</script>
+</body></html>

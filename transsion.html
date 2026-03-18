@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>传音 Transsion 竞争看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a18;color:#e0e0f0;min-height:100vh}
+    header{background:linear-gradient(135deg,#001a05,#001505,#000d03);padding:22px 40px;border-bottom:1px solid #00B05033;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .back-btn{font-size:12px;color:#7aadff;background:rgba(255,255,255,.05);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none}
+    .back-btn:hover{background:#00B050;border-color:#00B050;color:#fff}
+    .logo{font-size:22px;font-weight:900;color:#00B050}
+    .ts{font-size:12px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:6px 14px;border-radius:20px}
+    .container{max-width:1400px;margin:0 auto;padding:30px 40px}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+    .kpi{background:linear-gradient(135deg,#0d0d22,#12122a);border:1px solid #00B05033;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#00B050}
+    .kpi .num{font-size:34px;font-weight:800;color:#00B050;line-height:1}.kpi .lbl{font-size:12px;color:#7aadff;margin-top:5px}.kpi .sub{font-size:10px;color:#3a5a80;margin-top:3px}
+    .africa-banner{background:linear-gradient(135deg,rgba(0,176,80,.12),rgba(255,200,0,.06));border:1px solid rgba(0,176,80,.3);border-radius:14px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .africa-stat{background:rgba(0,176,80,.15);border:1px solid rgba(0,176,80,.3);border-radius:8px;padding:6px 14px;font-size:12px;color:#66cc88;font-weight:700}
+    .section-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#00B050;box-shadow:0 0 8px #00B050}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px}
+    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:26px}
+    .card{background:#12122a;border:1px solid #1e3a5f;border-radius:14px;padding:22px}
+    .full{margin-bottom:26px}
+    .brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+    .brand-sub-card{background:#0d1a10;border:1px solid #1a3a1a;border-radius:12px;padding:16px}
+    .brand-sub-card h3{font-size:14px;font-weight:700;margin-bottom:6px}
+    .brand-sub-card p{font-size:11px;color:#a0aabf;line-height:1.6}
+    .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+    .product-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;padding:18px;transition:.2s}
+    .product-card:hover{border-color:#00B050;transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,176,80,.2)}
+    .series-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+    .product-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+    .launch{font-size:10px;color:#3a5a80;margin-bottom:10px}
+    .chip{font-size:10px;color:#7aadff;background:rgba(0,176,80,.15);border:1px solid rgba(0,176,80,.3);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 2px 2px 0}
+    .feature-list{margin-top:10px;list-style:none}
+    .feature-list li{font-size:11px;color:#a0aabf;padding:3px 0;border-bottom:1px solid #1a1a3a;display:flex;gap:5px}
+    .feature-list li::before{content:'▸';color:#00B050;flex-shrink:0}
+    .review-card{background:#12122a;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden}
+    .review-header{padding:12px 18px;background:linear-gradient(135deg,rgba(0,176,80,.2),rgba(0,200,100,.1));display:flex;justify-content:space-between;align-items:center}
+    .review-header h4{font-size:14px;font-weight:700;color:#fff}
+    .score{font-size:20px;font-weight:800;color:#00B050}
+    .review-body{padding:14px 18px}
+    .review-half-title{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+    .pos-title{background:rgba(0,230,118,.1);color:#00e676}
+    .neg-title{background:rgba(255,82,82,.1);color:#ff5252}
+    .review-item{font-size:11px;color:#a0aabf;padding:4px 0 4px 14px;border-bottom:1px solid #1a1a3a;position:relative;line-height:1.5}
+    .review-item::before{content:'✓';position:absolute;left:0;font-size:10px;color:#00e676}
+    .review-item.neg::before{content:'✗';color:#ff5252}
+    .sentiment-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+    .sent-pos{background:#00e676}.sent-neg{background:#ff5252}
+    .sent-labels{display:flex;justify-content:space-between;font-size:10px;color:#4a6fa5}
+    .platform-badge{font-size:10px;color:#4a6fa5;background:rgba(255,255,255,.04);border:1px solid #1e3a5f;padding:2px 7px;border-radius:10px;display:inline-block;margin:2px 2px 0 0}
+    .pop-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .pop-label{font-size:11px;color:#c0cce0;width:160px;flex-shrink:0}
+    .pop-bar-bg{flex:1;height:8px;background:#1a1a3a;border-radius:4px;overflow:hidden}
+    .pop-bar{height:100%;border-radius:4px}
+    .pop-pct{font-size:11px;color:#7aadff;width:34px;text-align:right}
+    .comp-table{width:100%;border-collapse:collapse;font-size:12px}
+    .comp-table th{background:#0f1a30;color:#7aadff;padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #1e3a5f}
+    .comp-table td{padding:9px 12px;border-bottom:1px solid #1a1a3a;color:#c0cce0}
+    .check{color:#00e676}.cross{color:#ff5252}.star{color:#ffd740}
+    .chart-wrap{position:relative;height:250px}
+    .disclaimer{font-size:10px;color:#2e4a6a;border:1px solid #1a2a3a;border-radius:7px;padding:8px 12px;margin-top:10px;line-height:1.6}
+    footer{text-align:center;padding:20px;font-size:11px;color:#2a3a5a;border-top:1px solid #1e3a5f;line-height:2}
+    @media(max-width:1100px){.product-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}.brand-grid{grid-template-columns:1fr}}
+    @media(max-width:700px){.container{padding:20px}.two-col,.three-col{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="back-btn" href="index.html">← 返回Hub</a>
+    <div><div class="logo">传音 Transsion · TECNO · Infinix · itel</div><div style="font-size:12px;color:#4a6fa5">非洲之王 · 新兴市场情报看板 · 2025</div></div>
+  </div>
+  <div class="ts">数据更新：2026-03 | IDC/Canalys真实数据</div>
+</header>
+<div class="container">
+
+  <div class="africa-banner">
+    <div style="font-size:40px">🌍</div>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:700;color:#00e676;margin-bottom:6px">非洲智能手机市场绝对霸主（2025 Canalys真实数据）</div>
+      <div style="font-size:12px;color:#a0aabf;line-height:1.8">传音控股旗下三大品牌（TECNO / Infinix / itel）合计占据非洲市场 <strong style="color:#00e676">46%</strong> 份额，每2台非洲手机中就有1台来自传音。深度本地化是核心竞争力。</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+        <span class="africa-stat">非洲46% · Canalys Q1 2025 ✓</span>
+        <span class="africa-stat">全球智能机8.7% 第4 ✓IDC</span>
+        <span class="africa-stat">东南亚16% 第3 ✓</span>
+        <span class="africa-stat">拉美出货同比+40% ✓</span>
+        <span class="africa-stat">全球 70+ 国家有售 ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="num">46%</div><div class="lbl">非洲市占率</div><div class="sub">Canalys Q1 2025 · 三品牌合计</div></div>
+    <div class="kpi"><div class="num">8.7%</div><div class="lbl">全球智能机份额</div><div class="sub">IDC 2024 · 全球第4位</div></div>
+    <div class="kpi"><div class="num">201M</div><div class="lbl">2024全年出货量</div><div class="sub">含功能机 · 同比增长约10%</div></div>
+    <div class="kpi"><div class="num">70+</div><div class="lbl">覆盖国家/地区</div><div class="sub">新兴市场全覆盖策略</div></div>
+  </div>
+
+  <!-- 三大品牌 -->
+  <div class="section-title"><span class="dot"></span>旗下三大品牌定位</div>
+  <div class="brand-grid">
+    <div class="brand-sub-card">
+      <h3 style="color:#00B050">TECNO 🏆 中高端</h3>
+      <p>面向中产消费者，主打相机和时尚设计。AI与DeepSeek集成，在非洲"Top 100最受喜爱品牌"排名第8位（African Business 2024）。代表机型：Phantom V系列折叠屏</p>
+    </div>
+    <div class="brand-sub-card">
+      <h3 style="color:#66ccff">Infinix 🎮 年轻潮流</h3>
+      <p>主打年轻潮流科技，聚焦游戏与娱乐。DeepSeek-R1 AI集成。东南亚移动游戏市场重点品牌。代表机型：NOTE 50系列</p>
+    </div>
+    <div class="brand-sub-card">
+      <h3 style="color:#ffcc44">itel 💰 超低端大众</h3>
+      <p>为最广泛基础消费者提供可靠实惠选择。功能机+智能机并举。非洲农村市场渗透率极强。代表机型：itel P系列、A系列</p>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>2025 代表机型</div>
+  <div class="product-grid">
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(0,176,80,.15);border:1px solid #00B050;color:#66cc88">TECNO 旗舰</span>
+      <h3>Phantom V5</h3><div class="launch">2025年发布</div>
+      <span class="chip">D9200+</span><span class="chip">5750mAh</span>
+      <ul class="feature-list">
+        <li>传音首款折叠旗舰</li><li>Dimensity 9200+ 旗舰芯片</li>
+        <li>5750mAh + 45W</li><li>多摄像系统</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(0,176,80,.15);border:1px solid #00B050;color:#66cc88">TECNO 中高端</span>
+      <h3>Camon 30 Pro</h3><div class="launch">2025 Q1</div>
+      <span class="chip">D7300</span><span class="chip">AI相机</span>
+      <ul class="feature-list">
+        <li>主打影像 · DeepSeek AI</li><li>5000mAh + 45W</li>
+        <li>深色肤色优化算法</li><li>非洲市场热销</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(0,150,255,.15);border:1px solid #0096ff;color:#66aaff">Infinix 中端</span>
+      <h3>NOTE 50 Pro</h3><div class="launch">2025 Q1</div>
+      <span class="chip">D8200</span><span class="chip">68W</span>
+      <ul class="feature-list">
+        <li>DeepSeek-R1 AI内置</li><li>5000mAh + 68W快充</li>
+        <li>144Hz AMOLED屏</li><li>游戏性能优化</li>
+      </ul>
+    </div>
+    <div class="product-card">
+      <span class="series-badge" style="background:rgba(255,200,0,.1);border:1px solid #ffd700;color:#ffcc44">itel 超低端</span>
+      <h3>S25 Ultra</h3><div class="launch">2025 年</div>
+      <span class="chip">入门芯片</span><span class="chip">双卡</span>
+      <ul class="feature-list">
+        <li>5000mAh超大电池</li><li>双SIM卡支持</li>
+        <li>超低价格 &lt;$100</li><li>非洲农村市场</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="review-card">
+      <div class="review-header"><div><h4>TECNO Camon系列</h4><div style="margin-top:4px"><span class="platform-badge">African Business</span><span class="platform-badge">GSMArena</span></div></div><div class="score" style="color:#00B050">7.8<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:68%"></div><div class="sent-neg" style="width:32%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 68%</span><span style="color:#ff5252">差评 32%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价</span>
+          <div class="review-item">深色肤色相机优化全行业最佳，无死角</div>
+          <div class="review-item">价格极具竞争力，功能远超售价</div>
+          <div class="review-item">非洲本地化极深，双SIM卡/大电池标配</div>
+          <div class="review-item">被非洲消费者评为"最受喜爱品牌Top10"</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价</span>
+          <div class="review-item neg">顶级旗舰规格与Samsung/OPPO有明显差距</div>
+          <div class="review-item neg">软件更新速度慢，安全补丁滞后</div>
+          <div class="review-item neg">非新兴市场认知度几乎为零</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>Infinix NOTE系列</h4><div style="margin-top:4px"><span class="platform-badge">GSMArena</span><span class="platform-badge">Southeast Asia</span></div></div><div class="score" style="color:#00B050">7.5<span style="font-size:11px;color:#4a6fa5">/10</span></div></div>
+      <div class="review-body">
+        <div class="sentiment-bar"><div class="sent-pos" style="width:65%"></div><div class="sent-neg" style="width:35%"></div></div>
+        <div class="sent-labels"><span style="color:#00e676">好评 65%</span><span style="color:#ff5252">差评 35%</span></div>
+        <div style="margin-top:12px"><span class="review-half-title pos-title">+ 正面评价</span>
+          <div class="review-item">DeepSeek AI集成是同价位唯一选项</div>
+          <div class="review-item">游戏优化针对东南亚主流游戏</div>
+          <div class="review-item">68W快充在入门价位少见</div>
+        </div>
+        <div style="margin-top:10px"><span class="review-half-title neg-title">- 负面评价</span>
+          <div class="review-item neg">系统稳定性偶有问题</div>
+          <div class="review-item neg">摄像系统与主流中端有差距</div>
+          <div class="review-item neg">软件生态不完善</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-header"><div><h4>🌍 区域市场分析</h4><div style="margin-top:4px"><span class="platform-badge">Canalys Q1 2025</span></div></div><div class="score" style="color:#00B050">主导 🏆</div></div>
+      <div class="review-body">
+        <div style="background:rgba(0,176,80,.08);border:1px solid rgba(0,176,80,.2);border-radius:8px;padding:12px;margin-bottom:10px">
+          <div style="font-size:11px;color:#00e676;font-weight:700;margin-bottom:6px">真实市场数据</div>
+          <div style="font-size:11px;color:#a0aabf;line-height:1.9">
+            🌍 非洲整体：<strong style="color:#00e676">46%</strong> (Canalys Q1 2025)<br>
+            🌏 东南亚：<strong style="color:#00e676">16%</strong> 第三（与Xiaomi并列）<br>
+            🌍 中东：<strong style="color:#00e676">17%</strong> 第二<br>
+            🌎 拉美：<strong style="color:#00e676">第四</strong>，同比+40%<br>
+            ⚡ 非洲Q1 2025出货量同比 <strong style="color:#ff6666">-5%</strong>（压力增加）
+          </div>
+        </div>
+        <div><span class="review-half-title pos-title">+ AI战略（2025）</span>
+          <div class="review-item">TECNO接入阿里云通义模型</div>
+          <div class="review-item">Infinix内置DeepSeek-R1</div>
+          <div class="review-item">AIoT生态系统建设中</div>
+        </div>
+        <div style="margin-top:8px"><span class="review-half-title neg-title">- 竞争压力</span>
+          <div class="review-item neg">小米非洲Q1 2025增长36%，快速侵蚀</div>
+          <div class="review-item neg">Samsung在中端线持续加压</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>各品牌区域市占（真实数据）</div>
+      <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+      <div class="disclaimer">来源：Canalys Q1 2025 · IDC 2024年报</div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="dot"></span>三品牌综合能力雷达</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+</div>
+<footer>数据来源：Canalys Q1 2025 · IDC 2024 · African Business Brand Report · EqualOcean · DabaFinance · 看板生成 2026-03-18</footer>
+<script>
+new Chart(document.getElementById('regionChart').getContext('2d'),{type:'bar',data:{labels:['非洲','东南亚','中东','拉美'],datasets:[{label:'TECNO',data:[22,7,8,6],backgroundColor:'rgba(0,176,80,.8)',borderRadius:4},{label:'Infinix',data:[14,6,5,4],backgroundColor:'rgba(0,150,255,.8)',borderRadius:4},{label:'itel',data:[10,3,4,2],backgroundColor:'rgba(255,200,0,.8)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7aadff'}},y:{stacked:true,grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#7aadff',callback:v=>v+'%'},max:55}}}});
+new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['本地化','性价比','电池','AI功能','影像','软件生态'],datasets:[{label:'TECNO',data:[98,92,82,65,72,60],borderColor:'#00B050',backgroundColor:'rgba(0,176,80,.15)',pointBackgroundColor:'#00B050',borderWidth:2},{label:'Infinix',data:[90,95,80,70,65,58],borderColor:'#0096ff',backgroundColor:'rgba(0,150,255,.12)',pointBackgroundColor:'#0096ff',borderWidth:2},{label:'itel',data:[95,98,78,45,50,52],borderColor:'#ffd740',backgroundColor:'rgba(255,215,64,.10)',pointBackgroundColor:'#ffd740',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
+</script>
+</body></html>
