@@ -227,15 +227,10 @@
       <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
       <div class="disclaimer">来源：Canalys Q1 2025 · IDC 2024年报</div>
     </div>
-    <div class="card">
-      <div class="section-title"><span class="dot"></span>三品牌综合能力雷达</div>
-      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
-    </div>
   </div>
 </div>
 <footer>数据来源：Canalys Q1 2025 · IDC 2024 · African Business Brand Report · EqualOcean · DabaFinance · 看板生成 2026-03-18</footer>
 <script>
 new Chart(document.getElementById('regionChart').getContext('2d'),{type:'bar',data:{labels:['非洲','东南亚','中东','拉美'],datasets:[{label:'TECNO',data:[22,7,8,6],backgroundColor:'rgba(0,176,80,.8)',borderRadius:4},{label:'Infinix',data:[14,6,5,4],backgroundColor:'rgba(0,150,255,.8)',borderRadius:4},{label:'itel',data:[10,3,4,2],backgroundColor:'rgba(255,200,0,.8)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7aadff'}},y:{stacked:true,grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#7aadff',callback:v=>v+'%'},max:55}}}});
-new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['本地化','性价比','电池','AI功能','影像','软件生态'],datasets:[{label:'TECNO',data:[98,92,82,65,72,60],borderColor:'#00B050',backgroundColor:'rgba(0,176,80,.15)',pointBackgroundColor:'#00B050',borderWidth:2},{label:'Infinix',data:[90,95,80,70,65,58],borderColor:'#0096ff',backgroundColor:'rgba(0,150,255,.12)',pointBackgroundColor:'#0096ff',borderWidth:2},{label:'itel',data:[95,98,78,45,50,52],borderColor:'#ffd740',backgroundColor:'rgba(255,215,64,.10)',pointBackgroundColor:'#ffd740',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
 </script>
 </body></html>

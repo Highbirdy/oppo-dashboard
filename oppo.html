@@ -757,16 +757,10 @@
     </div>
   </div>
 
-  <!-- Radar + Sentiment -->
-  <div class="two-col">
-    <div class="card">
-      <div class="section-title" style="--dot-color:#ffd740"><span class="dot"></span>各系列功能侧重雷达图</div>
-      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="section-title" style="--dot-color:#00e676"><span class="dot"></span>各机型海外好评 / 差评占比（评测综合）</div>
-      <div class="chart-wrap"><canvas id="sentimentChart"></canvas></div>
-    </div>
+  <!-- Sentiment -->
+  <div class="card">
+    <div class="section-title" style="--dot-color:#00e676"><span class="dot"></span>各机型海外好评 / 差评占比（评测综合）</div>
+    <div class="chart-wrap"><canvas id="sentimentChart"></canvas></div>
   </div>
 
   <!-- Popularity Bars -->
@@ -896,7 +890,6 @@
           <tr>
             <th>机型</th><th>系列定位</th><th>芯片</th><th>主摄</th><th>电池</th>
             <th>快充</th><th>防水</th><th>AI 摄影</th><th>折叠屏</th><th>Hasselblad</th>
-            <th>海外综合评分</th>
           </tr>
         </thead>
         <tbody>
@@ -904,37 +897,31 @@
             <td><strong>Find N5</strong></td><td>折叠旗舰</td><td>SD 8 Elite</td><td>50MP</td>
             <td>5600mAh</td><td>80W+50W无线</td><td>IPX6/8/9</td>
             <td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td>
-            <td><span class="star">★★★★★</span> <span style="font-size:11px;color:#4a6fa5">9.2/10</span></td>
           </tr>
           <tr>
             <td><strong>Find X8 Pro</strong></td><td>旗舰</td><td>Dimensity 9400</td><td>50MP 双潜望</td>
             <td>5910mAh</td><td>80W</td><td>IP68</td>
             <td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td>
-            <td><span class="star">★★★★☆</span> <span style="font-size:11px;color:#4a6fa5">8.8/10</span></td>
           </tr>
           <tr>
             <td><strong>Find X9 Pro</strong></td><td>旗舰</td><td>Dimensity 9500</td><td>200MP</td>
             <td>7515mAh</td><td>80W</td><td>IP68</td>
             <td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td>
-            <td><span class="star">★★★★★</span> <span style="font-size:11px;color:#4a6fa5">待评测</span></td>
           </tr>
           <tr>
             <td><strong>Reno 15 Pro</strong></td><td>中高端</td><td>Dimensity 8450</td><td>200MP HP5</td>
             <td>6200mAh</td><td>80W</td><td>IP69</td>
             <td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td>
-            <td><span class="star">★★★★☆</span> <span style="font-size:11px;color:#4a6fa5">待评测</span></td>
           </tr>
           <tr>
             <td><strong>Reno 13 Pro</strong></td><td>中高端</td><td>Dimensity 8350</td><td>50MP</td>
             <td>5800mAh</td><td>80W</td><td>IP66/68/69</td>
             <td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td>
-            <td><span class="star">★★★☆☆</span> <span style="font-size:11px;color:#4a6fa5">8.2/10</span></td>
           </tr>
           <tr>
             <td><strong>A6s 5G</strong></td><td>入门</td><td>—</td><td>标准</td>
             <td>7000mAh</td><td>80W</td><td>—</td>
             <td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td>
-            <td><span class="star">★★★☆☆</span> <span style="font-size:11px;color:#4a6fa5">—</span></td>
           </tr>
         </tbody>
       </table>
@@ -950,7 +937,7 @@
     Tom's Guide · AndroidAuthority · TechAdvisor · 9to5Google · GSMArena · Coolsmartphone · GadgetMatch · OPPO Global
   </div>
   <div style="margin-top:6px">
-    ⚠️ 功能受欢迎度百分比（非标注"真实调研"者）为基于评测平台提及频率综合推算，非官方调研数字 &nbsp;|&nbsp; 看板生成于 2026-03-18
+    好评/差评占比来源：GSMArena 用户评价 · Amazon 评论 · Reddit 真实反馈综合 &nbsp;|&nbsp; 看板生成于 2026-03-18
   </div>
 </footer>
 
@@ -993,33 +980,6 @@ new Chart(popCtx, {
     scales: {
       x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#7aadff', font: { size: 10 } } },
       y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#7aadff', font: { size: 11 }, callback: v => v + '%' }, min: 0, max: 100 }
-    }
-  }
-});
-
-// ── Radar Chart ──
-const radarCtx = document.getElementById('radarChart').getContext('2d');
-new Chart(radarCtx, {
-  type: 'radar',
-  data: {
-    labels: ['影像能力', '电池续航', 'AI 功能', '防护性能', '游戏性能', '轻薄设计', '软件生态'],
-    datasets: [
-      { label: 'Find X9 Pro', data: [100, 98, 90, 75, 88, 70, 92], borderColor: '#0072ff', backgroundColor: 'rgba(0,114,255,.15)', pointBackgroundColor: '#0072ff', borderWidth: 2 },
-      { label: 'Find N5', data: [72, 82, 82, 90, 68, 100, 88], borderColor: '#cc88ff', backgroundColor: 'rgba(204,136,255,.12)', pointBackgroundColor: '#cc88ff', borderWidth: 2 },
-      { label: 'Reno 15 Pro', data: [82, 85, 84, 88, 70, 68, 85], borderColor: '#69f0ae', backgroundColor: 'rgba(105,240,174,.12)', pointBackgroundColor: '#69f0ae', borderWidth: 2 },
-      { label: 'A 系列', data: [50, 95, 40, 72, 50, 58, 70], borderColor: '#ffd740', backgroundColor: 'rgba(255,215,64,.10)', pointBackgroundColor: '#ffd740', borderWidth: 2 }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#7aadff', font: { size: 11 }, boxWidth: 12 } } },
-    scales: {
-      r: {
-        grid: { color: 'rgba(255,255,255,.08)' },
-        angleLines: { color: 'rgba(255,255,255,.08)' },
-        pointLabels: { color: '#a0b8d8', font: { size: 11 } },
-        ticks: { display: false }, min: 0, max: 100
-      }
     }
   }
 });

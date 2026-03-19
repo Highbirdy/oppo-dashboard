@@ -143,11 +143,7 @@
         <div class="pop-row"><div class="pop-label">Display质量</div><div class="pop-bar-bg"><div class="pop-bar" style="width:85%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">高</div><div class="pop-src">评测综合</div></div>
         <div class="pop-row"><div class="pop-label">三星生态互联</div><div class="pop-bar-bg"><div class="pop-bar" style="width:68%;background:linear-gradient(90deg,#1428A0,#6688ff)"></div></div><div class="pop-pct">中高</div><div class="pop-src">评测综合</div></div>
       </div>
-      <div class="disclaimer">⚠️ 标注"真实来源"的数字有报告依据；其余为评测综合推算</div>
-    </div>
-    <div class="card">
-      <div class="section-title"><span class="dot"></span>各系列功能侧重雷达</div>
-      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+      <div class="disclaimer">⚠️ 标注"真实来源"的数字有报告依据；其余条目来自海外评测媒体综合</div>
     </div>
   </div>
 
@@ -247,7 +243,6 @@
 </div>
 <footer>数据来源：GSMArena · TechRadar · Tom's Guide · AndroidAuthority · IDC Q3 2025 · 看板生成 2026-03-18</footer>
 <script>
-new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['影像能力','电池续航','AI功能','软件生态','折叠屏','快充速度'],datasets:[{label:'S25 Ultra',data:[88,80,85,95,50,55],borderColor:'#1428A0',backgroundColor:'rgba(20,40,160,.15)',pointBackgroundColor:'#1428A0',borderWidth:2},{label:'Z Fold 7',data:[80,75,82,90,95,50],borderColor:'#7b61ff',backgroundColor:'rgba(123,97,255,.12)',pointBackgroundColor:'#7b61ff',borderWidth:2},{label:'S25',data:[80,82,82,92,30,40],borderColor:'#6688ff',backgroundColor:'rgba(102,136,255,.10)',pointBackgroundColor:'#6688ff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{r:{grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#a0b8d8',font:{size:11}},ticks:{display:false},min:0,max:100}}}});
 new Chart(document.getElementById('sentChart').getContext('2d'),{type:'bar',data:{labels:['S25 Ultra','S25+','S25','S25 Edge'],datasets:[{label:'好评',data:[75,78,78,60],backgroundColor:'rgba(0,230,118,.75)',borderRadius:6,borderSkipped:false},{label:'差评',data:[25,22,22,40],backgroundColor:'rgba(255,82,82,.75)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7aadff',font:{size:11},boxWidth:12}}},scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7aadff'}},y:{stacked:true,max:100,grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#7aadff',callback:v=>v+'%'}}}}});
 </script>
 </body></html>
